@@ -1,0 +1,14 @@
+<?php
+	$GLOBALS['TL_JAVASCRIPT'][] = 'https://www.gstatic.com/charts/loader.js';
+	// $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/gp_charts/assets/js/loader.js';
+
+
+$GLOBALS['TL_HEAD'][]="<script>google.charts.load('current', {
+				packages: ['corechart'],
+				language:'de'
+			});</script>";
+
+
+?> 
+
+

@@ -1,0 +1,91 @@
+<div class="<?php echo $this->class; ?> block"<?php echo $this->cssID; ?><?php if ($this->style): ?> style="<?php echo $this->style; ?>"<?php endif; ?>>
+
+	<?php 
+		$chart = $this->chart;
+		// var_dump($this->chart->chartType);
+		// var_dump($this->id);
+	?>
+	<?php if ($this->chart->title): ?>
+		<h4 class="gpchart_title"><?= $this->chart->title; ?></h4>
+	<?php endif; ?>
+
+	<?php if ($this->chart->subtitle): ?>
+		<p class="gpchart_subtitle" ><?= $this->chart->subtitle; ?></p>
+	<?php endif; ?>
+
+
+	<script type="text/javascript">
+
+		// Set a callback to run when the Google Visualization API is loaded.
+		google.charts.setOnLoadCallback(drawChart<?= $this->id ?>);
+
+
+		function drawChart<?= $this->id ?>() {
+
+
+			// Google chart is not taking full width when a parent element is set to "display: none"
+			var $accordion = $('#gpchart_<?= $this->id ?>').parent().parent().parent();
+			$accordion.css('display', 'block');
+
+
+			// Create and populate the data table.
+			var data = new google.visualization.DataTable();
+			data.addColumn('string', '<?= $this->chart->name_x; ?>' );
+
+			<?php 
+			for ($i=0; $i < $this->chart->cols-1; $i++) {
+				echo "data.addColumn('number', '".  $this->chart->series[$i]['col_name'] ."');\n";
+			}
+			?>
+
+			data.addRows(<?= $chart->data; ?>);
+
+			// Instantiate and draw our chart, passing in some options.
+			var chart = new google.visualization.<?= ucfirst($this->chart->chartType) ?>Chart(document.getElementById('gpchart_<?= $this->id ?>'));
+
+
+	        function selectHandler() {
+	          var selectedItem = chart.getSelection()[0];
+	          if (selectedItem) {
+	            var topping = data.getValue(selectedItem.row, 0);
+	            alert('The user selected ' + topping);
+	          }
+	        }
+
+	        google.visualization.events.addListener(chart, 'select', selectHandler); 
+
+	        // hide the parent div again
+			google.visualization.events.addListener(chart, 'ready', function () {
+			    $accordion.css('display', 'none');
+			});
+
+
+			// Set chart options
+	        var options = '<?= json_encode($this->chart->options,JSON_FORCE_OBJECT) ?>';
+			options = JSON.parse(options);
+			if (options.colors) {
+				var arColors = options.colors.split(',')
+			};
+			options.colors = arColors;
+			console.dir(options);
+
+			// options.vAxis.viewWindow = {};
+			// options.vAxis.viewWindowMode	= 'pretty';		
+
+			chart.draw(data, options);
+		}
+
+		$(window).resize(function(){
+			if ($(window).width()<1140) {
+				drawChart<?= $this->id ?>();
+				
+			}
+
+		});		
+
+	</script>
+
+	
+	<div id="gpchart_<?= $this->id ?>"></div>
+
+</div>
